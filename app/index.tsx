@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Text, View, StatusBar } from "react-native";
 import "./LogbookScreen";
 import LogbookScreen from "@/app/LogbookScreen";
 
@@ -11,6 +11,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
+        <StatusBar hidden={true} />
       <LogbookScreen/>
     </View>
   );

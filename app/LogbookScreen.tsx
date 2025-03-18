@@ -17,6 +17,7 @@ const LogbookScreen = () => {
 
     return (
         <View style={styles.container}>
+            <Text style={styles.header}>My Logbook</Text>
             <FlatList
                 data={logs}
                 keyExtractor={(item, index) => index.toString()}
@@ -38,12 +39,19 @@ const LogbookScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    header: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center'
+    },
     center: {
       textAlign: 'center',
     },
     container: {
         flex: 1,
         padding: 16,
+        paddingTop: 40,
         backgroundColor: 'white',
         width: '100%'
     },
