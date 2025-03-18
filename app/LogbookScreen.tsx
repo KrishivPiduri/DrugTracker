@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { format, parse } from 'date-fns';
 
 const LogbookScreen = () => {
     const [logs, setLogs] = useState([
-        { date: 'March 12, 2025', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
-        { date: 'March 13, 2025', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
-        { date: 'March 14, 2025', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
-        { date: 'March 15, 2025', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
+        { date: '2025-03-15', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
+        { date: '2025-03-14', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
+        { date: '2025-03-13', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
+        { date: '2025-03-12', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
     ]);
 
     const addNewLog = () => {
         const newDate = `March ${logs.length + 12}, 2025`;
         setLogs([{ date: newDate, drugs: ['Drug 1', 'Drug 2', 'Drug 3'] }, ...logs]);
+    };
+
+    const formatDate = (dateStr: string) => {
+        const date = parse(dateStr, 'yyyy-MM-dd', new Date());
+        return format(date, 'MMMM dd, yyyy');
     };
 
     return (
@@ -23,7 +29,7 @@ const LogbookScreen = () => {
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.logEntry}>
-                        <Text style={styles.date}>{item.date}</Text>
+                        <Text style={styles.date}>{formatDate(item.date)}</Text>
                         <Text style={styles.center}>I took the following drugs:</Text>
                         {item.drugs.map((drug, index) => (
                             <Text key={index} style={styles.center}>{index + 1}. {drug}</Text>
