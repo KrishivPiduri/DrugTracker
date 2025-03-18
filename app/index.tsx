@@ -1,6 +1,9 @@
-import { Text, View, StatusBar } from "react-native";
+import { View, StatusBar } from "react-native";
 import "./LogbookScreen";
 import LogbookScreen from "@/app/LogbookScreen";
+import React from 'react';
+import './_layout';
+
 
 export default function Index() {
   return (
@@ -14,5 +17,5 @@ export default function Index() {
         <StatusBar hidden={true} />
       <LogbookScreen/>
     </View>
-  );
+);
 }

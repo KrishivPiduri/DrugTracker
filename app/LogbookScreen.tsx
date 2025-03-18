@@ -1,25 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { format, parse } from 'date-fns';
+import { router } from "expo-router";
+import { useState } from 'react';
+
 
 const LogbookScreen = () => {
-    // Simulating pulling past data
-    const pullPastData = (): Record<string, string[]> => {
-        return {'2025-03-15': ['Drug 1', 'Drug 2', 'Drug 3'],
-            '2025-03-14': ['Drug 1', 'Drug 2', 'Drug 3'],
-            '2025-03-13': ['Drug 1', 'Drug 2', 'Drug 3'],
-            '2025-03-12': ['Drug 1', 'Drug 2', 'Drug 3'] };
+    function pullData() {
+        return {'2025-12-03':['drug1','drug2'],'2025-12-02':['drug1','drug2'],'2025-12-01':['drug1','drug2']};
     }
-
-    const [logs, setLogs] = useState(pullPastData());
-
+    const [logs, setLogs] = useState(pullData());
     const addNewLog = () => {
-        const formattedToday = format(new Date(), 'yyyy-MM-dd');
-        setLogs(prevLogs => ({
-            ...prevLogs,
-            [formattedToday]: ['Drug 1', ...(prevLogs[formattedToday] || [])]
-        }));
+        const today = format(new Date(), 'yyyy-MM-dd');
+        setLogs((prevLogs: Record<string, string[]>) => {
+            const updatedLogs = { ...prevLogs };
+            if (!updatedLogs[today]) {
+                updatedLogs[today] = [];
+            }
+            updatedLogs[today].push('drug');
+            return updatedLogs;
+        });
     };
 
     const formatDate = (dateStr: string) => {
