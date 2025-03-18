@@ -4,16 +4,22 @@ import { AntDesign } from '@expo/vector-icons';
 import { format, parse } from 'date-fns';
 
 const LogbookScreen = () => {
-    const [logs, setLogs] = useState([
-        { date: '2025-03-15', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
-        { date: '2025-03-14', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
-        { date: '2025-03-13', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
-        { date: '2025-03-12', drugs: ['Drug 1', 'Drug 2', 'Drug 3'] },
-    ]);
+    // Simulating pulling past data
+    const pullPastData = (): Record<string, string[]> => {
+        return {'2025-03-15': ['Drug 1', 'Drug 2', 'Drug 3'],
+            '2025-03-14': ['Drug 1', 'Drug 2', 'Drug 3'],
+            '2025-03-13': ['Drug 1', 'Drug 2', 'Drug 3'],
+            '2025-03-12': ['Drug 1', 'Drug 2', 'Drug 3'] };
+    }
+
+    const [logs, setLogs] = useState(pullPastData());
 
     const addNewLog = () => {
-        const newDate = `March ${logs.length + 12}, 2025`;
-        setLogs([{ date: newDate, drugs: ['Drug 1', 'Drug 2', 'Drug 3'] }, ...logs]);
+        const formattedToday = format(new Date(), 'yyyy-MM-dd');
+        setLogs(prevLogs => ({
+            ...prevLogs,
+            [formattedToday]: ['Drug 1', ...(prevLogs[formattedToday] || [])]
+        }));
     };
 
     const formatDate = (dateStr: string) => {
@@ -21,17 +27,26 @@ const LogbookScreen = () => {
         return format(date, 'MMMM dd, yyyy');
     };
 
+    const transformLogs = (logs:Object) => {
+        const logsList=[];
+        for (const [key, value] of Object.entries(logs)) {
+            logsList.push({date: key, drugs: value});
+        }
+        logsList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return logsList;
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.header}>My Logbook</Text>
             <FlatList
-                data={logs}
+                data={transformLogs(logs)}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.logEntry}>
                         <Text style={styles.date}>{formatDate(item.date)}</Text>
                         <Text style={styles.center}>I took the following drugs:</Text>
-                        {item.drugs.map((drug, index) => (
+                        {item.drugs.map((drug: string, index:number) => (
                             <Text key={index} style={styles.center}>{index + 1}. {drug}</Text>
                         ))}
                     </View>
