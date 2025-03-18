@@ -1,27 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { format, parse } from 'date-fns';
-import { router } from "expo-router";
-import { useState } from 'react';
+import { Link } from 'expo-router';  // Use Link to navigate
+
 
 
 const LogbookScreen = () => {
     function pullData() {
         return {'2025-12-03':['drug1','drug2'],'2025-12-02':['drug1','drug2'],'2025-12-01':['drug1','drug2']};
     }
-    const [logs, setLogs] = useState(pullData());
-    const addNewLog = () => {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        setLogs((prevLogs: Record<string, string[]>) => {
-            const updatedLogs = { ...prevLogs };
-            if (!updatedLogs[today]) {
-                updatedLogs[today] = [];
-            }
-            updatedLogs[today].push('drug');
-            return updatedLogs;
-        });
-    };
+    const logs= pullData();
 
     const formatDate = (dateStr: string) => {
         const date = parse(dateStr, 'yyyy-MM-dd', new Date());
@@ -53,9 +42,11 @@ const LogbookScreen = () => {
                     </View>
                 )}
             />
-            <TouchableOpacity style={styles.fab} onPress={addNewLog}>
-                <AntDesign name="plus" size={24} color="white" />
-            </TouchableOpacity>
+            <Link href="/input" asChild>
+                <TouchableOpacity style={styles.fab}>
+                    <AntDesign name="plus" size={24} color="white" />
+                </TouchableOpacity>
+            </Link>
         </View>
     );
 };
