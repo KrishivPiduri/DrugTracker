@@ -68,11 +68,6 @@ app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-// Additional Routes
-app.get("/greet", (req, res) => {
-  res.send("Hello from a new route!");
-});
-
 app.get("/persons/1/medications", (req, res) => {
   const dummy = {
     _id: 1,
@@ -179,6 +174,11 @@ app.get("/logout", (req, res) => {
 // Serve login page
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+// Serve register page
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
 // =============================
