@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const mysql = require("mysql2");
+const { Pool } = require("pg"); // Import PostgreSQL client
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const passport = require("passport");
@@ -46,12 +46,13 @@ passport.use(
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
-// MySQL Connection
-const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+// PostgreSQL Connection
+const db = new Pool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT, // Add this if your PostgreSQL server uses a custom port
 });
 
 db.connect((err) => {
@@ -59,7 +60,7 @@ db.connect((err) => {
     console.error("Database connection failed:", err);
     return;
   }
-  console.log("Connected to MySQL");
+  console.log("Connected to PostgreSQL");
 });
 
 // Default Route
@@ -114,40 +115,43 @@ app.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  db.query(
-    "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-    [username, email, hashedPassword],
-    (err, result) => {
-      if (err) return res.status(500).send("User already exists");
-      res.send("User registered successfully");
-    }
-  );
+  try {
+    await db.query(
+      "INSERT INTO public.users (username, email, password_hash) VALUES ($1, $2, $3)",
+      [username, email, hashedPassword]
+    );
+    res.send("User registered successfully");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("User already exists");
+  }
 });
 
 // Login User
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  
-  db.query(
-    "SELECT * FROM users WHERE email = ?",
-    [email],
-    async (err, results) => {
-      if (err || results.length === 0)
-        return res.status(401).send("Invalid email or password");
 
-      const user = results[0];
-      const isValidPassword = await bcrypt.compare(
-        password,
-        user.password_hash
-      );
+  try {
+    const result = await db.query("SELECT * FROM public.users WHERE email = $1", [
+      email,
+    ]);
 
-      if (!isValidPassword)
-        return res.status(401).send("Invalid email or password");
-
-      req.session.user = user; // Store user session
-      res.send("Login successful");
+    if (result.rows.length === 0) {
+      return res.status(401).send("Invalid email or password");
     }
-  );
+
+    const user = result.rows[0];
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValidPassword) {
+      return res.status(401).send("Invalid email or password");
+    }
+
+    req.session.user = user; // Store user session
+    res.send("Login successful");
+  } catch (err) {
+    res.status(500).send("An error occurred");
+  }
 });
 
 // Google OAuth Routes
